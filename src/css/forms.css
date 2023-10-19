@@ -1,0 +1,17 @@
+@import './App.css';
+
+
+.form-primary{
+    min-height:300px;
+    width:300px;
+    border-radius:30px;
+    display:flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (min-width:375px){
+    .form-primary{
+        width:350px;
+    }
+}
