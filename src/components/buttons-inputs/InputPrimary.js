@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {memo} from 'react'
 import '../../css/buttons-inputs.css'
 
 const InputPrimary = ({id, placeholder, type='text'}) => {
@@ -12,4 +12,4 @@ const InputPrimary = ({id, placeholder, type='text'}) => {
   )
 }
 
-export default InputPrimary
+export default memo(InputPrimary)
