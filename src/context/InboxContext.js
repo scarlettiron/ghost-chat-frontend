@@ -1,5 +1,5 @@
 import React, {createContext, useState, useEffect, useContext} from "react";
-import {AuthContext} from './AuthContext'
+import AuthContext from './AuthContext'
 import CustomFetch from '../utils/CustomFetch'
 import {InboxUrls} from '../utils/ApiEndPoints'
 import CountRenders from '../utils/CountRenders'
