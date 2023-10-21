@@ -1,10 +1,13 @@
-import React from 'react'
-
+import React, {useContext} from 'react'
+import {AuthContext} from '../../context/AuthContext'
 
 const LoginSignup = () => {
+    
   return (
-    <div>LoginSignup</div>
+    <form>
+
+    </form>
   )
 }
 
-export default LoginSignup
+export default React.memo(LoginSignup)
