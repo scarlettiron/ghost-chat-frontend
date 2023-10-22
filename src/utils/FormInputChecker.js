@@ -1,22 +1,20 @@
 
-const formInputChecker = (e, setError, optional_inputs = []) => {
+const formInputChecker = (e, optional_inputs = []) => {
     const input_types = ['INPUT', 'TEXTAREA', 'SELECT']
     const elements = e.target.elements
     for (let x in elements){
         if(input_types.includes(elements[x].nodeName)){
             if(!optional_inputs.includes(elements[x].name) && elements[x].name !== 'placeholder' && !elements[x].value
             && elements[x].type !== 'file'){
-                setError(elements[x].name)
-                return true
+               return elements[x].name
+                
             }
             if(elements[x].value === 'placeholder'){
-                setError(elements[x].name)
-                return true
+                return elements[x].name
             }
             if(!optional_inputs.includes(elements[x].name) && elements[x].type === 'file' &&
             !elements[x].files){
-                setError(elements[x].name)
-                return true
+                return elements[x].name
             }
         }
     }

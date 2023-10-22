@@ -1,12 +1,19 @@
-import React, {useContext} from 'react'
-import AuthContext from '../../context/AuthContext'
-import '../../css/forms.css'
+import React, {useState} from 'react'
+import LoginForm from '../../components/_auth_components/LoginForm'
+import SignupForm from '../../components/_auth_components/SignupForm'
+import '../../css/general.css'
+
 const LoginSignup = () => {
-
+   const [toggleLogin, setToggleLogin] = useState(() => true)
   return (
-    <form className='form-primary'>
-
-    </form>
+    <>
+    {
+      toggleLogin ?
+      <LoginForm/>
+      :
+      <SignupForm/>
+    }
+    </>
   )
 }
 
