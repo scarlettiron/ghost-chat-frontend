@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
-import AuthContext from './AuthContext'
+import AuthContext from './AuthContext' 
+import InboxContext from './InboxContext'
 import {chatUrls} from '../utils/BaseInfo'
 import CustomFetch from '../utils/CustomFetch'
 import {w3cwebsocket as w3cSocket} from 'websocket'
@@ -13,8 +14,6 @@ export default PrivateSocketContext;
 
 
 export const PrivateSocketProvider = ({children}) => {
-    const {getThreadMessages} = chatUrls
-
     const {UserProfile} = useContext(AuthContext)
     const [contextThread, setContextThread] = useState(null)
 
@@ -46,27 +45,7 @@ export const PrivateSocketProvider = ({children}) => {
     const socketConnected = useRef(false)
 
     ///for messages state ///
-    const [messages, setMessages] = useState(null)
-
-    //for initial message state when page is loaded
-    const handleInitialMessagesState = (data) =>{
-        setMessages(() => data)
-    }
-
-    //for handling pagination
-    const handleMessagesResultsState = (data) => {
-        setMessages(oldArray => ({...oldArray, 
-            results:[...data.results, ...oldArray.results], 
-            next:data.next, previous:data.previous}))
-    }
-
-    //append new message to messages array
-    const addNewMessageToState = (newMessage) => {
-        setMessages(oldArray => ({...oldArray, count:oldArray.count + 1, 
-            results:[...oldArray.results, newMessage]}))
-    }
-
-
+    const {Inbox, currentThread, handleAddMessage, handleSaveMessageToDb} = useContext(InboxContext)
 
     //socket functions//
     const sendSocketMessage = (data) => {
@@ -79,7 +58,7 @@ export const PrivateSocketProvider = ({children}) => {
     const handleSocketActions = (data) => {
         if(data.type === 'chat_message'){
             if(data.sender !== UserProfile.id){
-            addNewMessageToState(data)
+            handleAddMessage(data)
             }
         }
         if(data.type === 'call_request'){
@@ -93,7 +72,7 @@ export const PrivateSocketProvider = ({children}) => {
         }
         if(data.type === 'decline_call_request'){
             if(data.sender !== UserProfile.id){
-            addNewMessageToState({
+            handleAddMessage({
                 sender:data.sender,
                 thread:data.thread,
                 body:null,
@@ -104,7 +83,7 @@ export const PrivateSocketProvider = ({children}) => {
             }
         }
         if(data.type === 'call_ended'){
-            addNewMessageToState({
+            handleAddMessage({
                 sender:data.sender,
                 thread:data.thread,
                 body:null,
@@ -259,11 +238,6 @@ export const PrivateSocketProvider = ({children}) => {
         peersConnected:peersConnected,
         socket:socket,
         socketConnected:socketConnected,
-        messages:messages,
-        setMessages:setMessages,
-        handleInitialMessagesState:handleInitialMessagesState,
-        handleMessagesResultsState:handleMessagesResultsState,
-        addNewMessageToState:addNewMessageToState,
         sendSocketMessage:sendSocketMessage,
         setupLocalStream:setupLocalStream,
         remoteVideo:remoteVideo,
@@ -275,8 +249,6 @@ export const PrivateSocketProvider = ({children}) => {
         callAccepted:callAccepted,
         callDeclined:callDeclined,
         stream:stream,
-        
-
     }
 
 

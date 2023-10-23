@@ -90,6 +90,29 @@ export const InboxProvider = ({children}) => {
         }
     }
 
+    //For users currently active thread
+    const [currentThread, setCurrentThread] = useState(() => null)
+
+    const handleSetCurrentThread = (threadId) => {
+        for(let i = 0; i < messages.length; i++){
+            if(messages[i].id === threadId){
+                setCurrentThread(messages[i])
+                return
+            }
+        }
+    }
+
+    //  Add message to LOCAL storage only
+    const handleAddMessage = (message) => {
+        setCurrentThread((oldData) => ({
+            message_list:[...oldData.message_list, message],
+            ...oldData
+        }))
+    }
+
+    // Add unread message to db
+    
+
 
     useEffect(() => {
         if(!User) return
@@ -97,9 +120,12 @@ export const InboxProvider = ({children}) => {
     }, [])
 
     const contextData = {
-        messages:messages,
+        Inbox:messages,
         dashboardError:error,
         dashboardLoading:loading,
+        handleAddMessage:handleAddMessage,
+        handleSetCurrentThread:handleSetCurrentThread,
+        currentThread:currentThread,
     }
 
     return (
