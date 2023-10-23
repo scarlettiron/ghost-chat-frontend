@@ -15,7 +15,7 @@ const AuthUserUrls = {
         method:'POST'  
     },
     Signup:{
-        url:`${server}users/signup/`,
+        url:`${server}users/signup`,
         method:'POST'
     },
 

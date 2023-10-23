@@ -1,8 +1,10 @@
-import React, {useContext, useState} from 'react'
+import React, {memo, useContext, useState} from 'react'
 import AuthContext from '../../context/AuthContext'
 import InputPrimary from '../../components/buttons-inputs/InputPrimary'
 import BtnPrimary from '../../components/buttons-inputs/BtnPrimary'
 import formInputChecker from '../../utils/FormInputChecker'
+import Error1 from '../loadings-errors-success/Error1'
+import Loading1 from '../loadings-errors-success/Loading1'
 import '../../css/forms.css'
 import '../../css/general.css'
 
@@ -19,8 +21,9 @@ const LoginForm = () => {
             setError({type:inputError})
         }
         setLoading(()=>true)
+        setError(() => false)
         let {username, password} = e.target.elements
-        
+
         username = username.strip()
         password = password.strip()
 
@@ -36,13 +39,23 @@ const LoginForm = () => {
 
     <form className='form-primary'  id='login-form'
           onSubmit={(e)=>handleLogin(e)}>
-      <InputPrimary id='username' placeholder='Username'
-      error={error}/>
-      <InputPrimary id='password' placeholder='Password'
-      type='password' error={error}/>
-      <BtnPrimary text={'Login'} form='login-form'/>
+       {error &&
+        <Error1 error={error}/>
+       }
+       {!loading &&
+        <>
+            <InputPrimary id='username' placeholder='Username'
+            error={error}/>
+            <InputPrimary id='password' placeholder='Password'
+            type='password' error={error}/>
+            <BtnPrimary text={'Login'} form='login-form'/>
+        </>
+        }
+        {loading &&
+            <Loading1/>
+        }
     </form>
   )
 }
 
-export default LoginForm
+export default memo(LoginForm)

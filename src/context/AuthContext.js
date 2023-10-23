@@ -56,7 +56,7 @@ export const AuthProvider = React.memo(({children}) => {
         setAuthTokens(null)
         localStorage.removeItem('user')
         setUser(null)
-        history.push('/login-signup')
+        history.push('/login')
     },[setAuthTokens])
               
 
