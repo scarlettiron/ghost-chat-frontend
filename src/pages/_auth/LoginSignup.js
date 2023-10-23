@@ -5,15 +5,18 @@ import '../../css/general.css'
 
 const LoginSignup = () => {
    const [toggleLogin, setToggleLogin] = useState(() => true)
-  return (
-    <>
-    {
-      toggleLogin ?
-      <LoginForm/>
-      :
-      <SignupForm/>
-    }
-    </>
+  const handleToggle = () => {
+    setToggleLogin(!toggleLogin)
+  }
+   return (
+    <div className='form-container'>
+      {
+        toggleLogin ?
+        <LoginForm toggle = {handleToggle}/>
+        :
+        <SignupForm toggle = {handleToggle}/>
+      }
+    </div>
   )
 }
 

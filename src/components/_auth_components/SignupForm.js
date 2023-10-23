@@ -9,7 +9,7 @@ import AuthUserUrls from '../../utils/ApiEndPoints'
 import '../../css/forms.css'
 import '../../css/general.css'
 
-const SignupForm = () => {
+const SignupForm = ({toggle}) => {
   const [loading, setLoading] = useState(() => false)
   const [error, setError] = useState(() => false)
   const [success, setSuccess] = useState(() => false)
@@ -92,6 +92,10 @@ const SignupForm = () => {
         {loading &&
             <Loading1/>
         }
+
+        <div className='w-100 justify-content-space-around'>
+            <h5 className='text-secondary' onClick={() => toggle()}>Login Instead</h5>
+        </div>
     </form>
   )
 }

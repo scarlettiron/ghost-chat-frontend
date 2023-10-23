@@ -1,4 +1,5 @@
 import React, {memo, useContext, useState} from 'react'
+import { Link } from 'react-router-dom'
 import AuthContext from '../../context/AuthContext'
 import InputPrimary from '../../components/buttons-inputs/InputPrimary'
 import BtnPrimary from '../../components/buttons-inputs/BtnPrimary'
@@ -9,7 +10,7 @@ import '../../css/forms.css'
 import '../../css/general.css'
 
 
-const LoginForm = () => {
+const LoginForm = ({toggle}) => {
     const [loading, setLoading] = useState(() => false)
     const [error, setError] = useState(() => false)
 
@@ -39,6 +40,7 @@ const LoginForm = () => {
 
     <form className='form-primary'  id='login-form'
           onSubmit={(e)=>handleLogin(e)}>
+        <h3 className='text-primary'>Login</h3>
        {error &&
         <Error1 error={error}/>
        }
@@ -54,6 +56,10 @@ const LoginForm = () => {
         {loading &&
             <Loading1/>
         }
+        <div className='w-100 justify-content-space-around'>
+            <h5 className='text-secondary' onClick={() => toggle()}>Signup</h5>
+            <h5 className='text-secondary'>Forgot Password</h5>
+        </div>
     </form>
   )
 }
