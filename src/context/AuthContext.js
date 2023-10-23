@@ -26,7 +26,7 @@ export const AuthProvider = React.memo(({children}) => {
             'password':password
         }
         //handle user authentication
-        const response = await fetch(Login, {
+        const response = await fetch(Login.url, {
             method:'POST',
             headers: {
                 'Content-Type':'application/json'
