@@ -39,6 +39,7 @@ export const InboxProvider = ({children}) => {
             if(response.status === 200){
                 if(!messages){
                     setMessages(data)
+                    localStorage.setItem('ghost_inbox', JSON.stringify(data))
                     setLoading(() => false)
                     return 
                 }
@@ -77,6 +78,8 @@ export const InboxProvider = ({children}) => {
                             oldData.push(data[j])
                         }
                     }
+                    localStorage.removeItem('ghost_inbox')
+                    localStorage.setItem('ghost_inbox', oldData)
                     return oldData
                 })
             }
@@ -105,9 +108,21 @@ export const InboxProvider = ({children}) => {
     //  Add message to LOCAL storage only
     const handleAddMessage = (message) => {
         setCurrentThread((oldData) => ({
-            message_list:[...oldData.message_list, message],
+            message_list:[message, ...oldData.message_list],
             ...oldData
         }))
+
+        const threadData = {...messages}
+        for(let x = 0; x < threadData.length; x++){
+            if(threadData[x].id === currentThread.id){
+                threadData[x].message_list.push(message)
+                break
+            }
+        }
+        setMessages(threadData)
+        localStorage.removeItem('ghost_inbox')
+        localStorage.setItem('ghost_inbox', threadData)
+
     }
 
     // Add unread message to db
