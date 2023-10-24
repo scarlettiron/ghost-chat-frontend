@@ -9,7 +9,7 @@ export default InboxContext;
 
 export const InboxProvider = ({children}) => {
     CountRenders('Inbox Context: ')
-    const {dashboard} = InboxUrls
+    const {dashboard, createMessage} = InboxUrls
     const {User} = useContext(AuthContext)
     // list of threads messages are
     //organized by thread with messages included in 
@@ -126,7 +126,13 @@ export const InboxProvider = ({children}) => {
     }
 
     // Add unread message to db
-    
+    const handleSaveMessageToDb = async (message) => {
+        const fetchConfig = {body:JSON.stringify(message), method:createMessage.method}
+        const {response, data} = await CustomFetch(createMessage.url, fetchConfig)
+        if(response.status === 200){
+            console.log('success')
+        }
+    }
 
 
     useEffect(() => {
@@ -141,6 +147,7 @@ export const InboxProvider = ({children}) => {
         handleAddMessage:handleAddMessage,
         handleSetCurrentThread:handleSetCurrentThread,
         currentThread:currentThread,
+        handleSaveMessageToDb:handleSaveMessageToDb,
     }
 
     return (
