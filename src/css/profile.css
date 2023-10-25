@@ -1,0 +1,56 @@
+@import '../App.css';
+
+.profile-picture-small{
+    width:75px;
+    height:75px;
+    border-radius: 50%;
+    overflow:hidden;
+    z-index:5;
+}
+
+.profile-picture-small img{
+    z-index: 4;
+    position:relative;
+    border-radius: inherit;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block
+}
+
+.profile-picture-medium{
+    width:100px;
+    height:100px;
+    border-radius: 50%;
+    overflow:hidden;
+    z-index:5;
+}
+
+.profile-picture-medium img{
+    z-index: 4;
+    position:relative;
+    border-radius: inherit;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block
+}
+
+
+.profile-picture-large{
+    width:150px;
+    height:150px;
+    border-radius: 50%;
+    overflow:hidden;
+    z-index:5;
+}
+
+.profile-picture-large img{
+    z-index: 4;
+    position:relative;
+    border-radius: inherit;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block
+}

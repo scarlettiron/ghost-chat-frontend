@@ -17,6 +17,9 @@ export const PrivateSocketProvider = ({children}) => {
     const {UserProfile} = useContext(AuthContext)
     const [contextThread, setContextThread] = useState(null)
 
+    const handleSetContextThread = (threadId) => {
+        setContextThread(threadId)
+    }
     ///for calling ///
     const call = useRef({status:false})
     const [calling, setCalling] = useState(() => false)
@@ -232,7 +235,7 @@ export const PrivateSocketProvider = ({children}) => {
     const socketContextData = {
         handleDeclineCall:handleDeclineCall,
         handleEndCall:handleEndCall,
-        setContextThread:setContextThread,
+        handleSetContextThread:handleSetContextThread,
         contextThread:contextThread,
         peerSignal:peerSignal,
         peersConnected:peersConnected,

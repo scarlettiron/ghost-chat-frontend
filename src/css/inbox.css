@@ -1,0 +1,11 @@
+@import '../App.css';
+
+.thread-item{
+    width:100%;
+    min-height:50px;
+    padding:5px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: flex-start;
+}
