@@ -1,10 +1,9 @@
 import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
 import AuthContext from './AuthContext' 
 import InboxContext from './InboxContext'
-import {chatUrls} from '../utils/BaseInfo'
 import CustomFetch from '../utils/CustomFetch'
 import {w3cwebsocket as w3cSocket} from 'websocket'
-import { socketUrls, serverUrl } from '../utils/BaseInfo'
+import {ChatUrls} from '../utils/ApiEndPoints'
 import Peer from 'simple-peer'
 
 
@@ -12,6 +11,7 @@ const PrivateSocketContext = createContext()
 
 export default PrivateSocketContext;
 
+const {socketUrl, serverUrl} = ChatUrls
 
 export const PrivateSocketProvider = ({children}) => {
     const {UserProfile} = useContext(AuthContext)
@@ -266,7 +266,7 @@ export const PrivateSocketProvider = ({children}) => {
 
         /* if(socketConnected.current === true) return
  */
-        const {PrivateChatCallSocket} = socketUrls
+        const PrivateChatCallSocket = socketUrl.url
         const socketProtocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'
         const socketConnectUrl = `${socketProtocol}${serverUrl}/${PrivateChatCallSocket.url}${contextThread}/`
         const newSocket = new w3cSocket(socketConnectUrl)

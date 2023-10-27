@@ -1,8 +1,8 @@
 @import '../App.css';
 
 .profile-picture-small{
-    width:75px;
-    height:75px;
+    width:50px;
+    height:50px;
     border-radius: 50%;
     overflow:hidden;
     z-index:5;
@@ -53,4 +53,8 @@
     height: 100%;
     object-fit: cover;
     display: block
+}
+
+.profile-name{
+    padding-left:10px;
 }

@@ -1,0 +1,52 @@
+@import '../App.css';
+
+/*  For individual thread containers */
+.thread-item{
+    width:100%;
+    min-height:50px;
+    padding:5px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: flex-start;
+    border-top:1px var(--theme-primary);
+    border-bottom: 1px var(--theme-primary);
+}
+
+
+/* For container holding list of all threads */
+.thread-container-wrapper{
+    width:100%;
+    display:block;
+}
+
+.thread-container.inactive{
+    display:none;
+}
+
+.thread-container{
+    border:none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width:100%;
+    margin-top:8%;
+}
+
+
+
+@media (min-width:500px){
+
+    .thread-container-wrapper{
+        width:25%;
+        display:inline;
+    }
+
+    .thread-container{
+        width:400px;
+        /* border:solid 1px var(--theme-primary); */
+        margin-left:25px;
+    }
+}

@@ -2,7 +2,7 @@ import React, {createContext, useState, useEffect, useContext} from "react";
 import AuthContext from './AuthContext'
 import CustomFetch from '../utils/CustomFetch'
 import {InboxUrls} from '../utils/ApiEndPoints'
-import CountRenders from '../utils/CountRenders'
+import {CountRenders} from '../utils/CountRenders'
 const InboxContext = createContext()
 
 export default InboxContext;
@@ -35,7 +35,9 @@ export const InboxProvider = ({children}) => {
     //them in local storage
     const handleDashboardLoad = async () => {
         try{
-            const {response, data} = await CustomFetch(dashboard)
+            const {response, data} = await CustomFetch(dashboard.url)
+            console.log(response)
+            console.log(data)
             if(response.status === 200){
                 if(!messages){
                     setMessages(data)
@@ -151,8 +153,8 @@ export const InboxProvider = ({children}) => {
     }
 
     return (
-        <InboxProvider.Provider value={contextData}>
+        <InboxContext.Provider value={contextData}>
             {children}
-        </InboxProvider.Provider>
+        </InboxContext.Provider>
     )
 }

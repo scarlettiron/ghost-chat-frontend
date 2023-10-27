@@ -1,12 +1,14 @@
 import dayjs from 'dayjs'
 import GetCookie from './GetCookie'
 import jwt_decode from 'jwt-decode'
-import {loginRefreshUrl} from './ApiEndPoints'
+import {AuthUserUrls} from './ApiEndPoints'
+
+const {RefreshToken} = AuthUserUrls 
 
 let updateToken = async (AuthTokens) => {
     if(AuthTokens?.refresh){
-        let response = await fetch(loginRefreshUrl, {
-            method:'POST',
+        let response = await fetch(RefreshToken.url, {
+            method:RefreshToken.method,
             headers:{
                 'Content-Type':'application/json',
 

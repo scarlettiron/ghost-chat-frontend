@@ -1,0 +1,23 @@
+@import '../App.css';
+
+
+/* For container holding all messages */
+.main-container{
+    width:100%;
+    background-color: rgb(39, 39, 39);
+    height:90vh;
+    display: none;
+}
+
+.main-container.active{
+    display:flex;
+}
+
+
+@media (min-width:500px){
+
+    .main-container{
+        width:100%;
+        display:flex;
+    }
+}

@@ -2,10 +2,10 @@ import React, {memo, useState} from 'react'
 import InputPrimary from '../../components/buttons-inputs/InputPrimary'
 import BtnPrimary from '../../components/buttons-inputs/BtnPrimary'
 import formInputChecker from '../../utils/FormInputChecker'
-import Error1 from '../loadings-errors-success/Error1'
-import Loading1 from '../loadings-errors-success/Loading1'
+import Error1 from '../loading-errors-success/Error1'
+import Loading1 from '../loading-errors-success/Loading1'
 import Success1 from '../loading-errors-success/Success1'
-import AuthUserUrls from '../../utils/ApiEndPoints'
+import {AuthUserUrls} from '../../utils/ApiEndPoints'
 import '../../css/forms.css'
 import '../../css/general.css'
 
@@ -17,6 +17,8 @@ const SignupForm = ({toggle}) => {
   const {Signup} = AuthUserUrls
 
   const handleSignup = async (e) => {
+    e.preventDefault()
+    
     if(error){
       setError(() => false)
     }
@@ -43,9 +45,9 @@ const SignupForm = ({toggle}) => {
 
 
     const payload = JSON.stringify({
-      'username':username.strip(),
-      'password':password.strip(),
-      'email':email.strip()
+      'username':username.value.trim(),
+      'password':password.value.trim(),
+      'email':email.value.trim()
     })
 
     setLoading(() => true)

@@ -1,7 +1,7 @@
 import React, {createContext, useState, useEffect, useCallback} from "react";
 import jwt_decode from 'jwt-decode'
 import {tokenExp, AuthUserUrls} from "../utils/ApiEndPoints";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import GetCookie from "../utils/GetCookie";
 import dayjs from 'dayjs'
 import { CountRenders } from "../utils/CountRenders";
@@ -16,7 +16,7 @@ export const AuthProvider = React.memo(({children}) => {
     const [User, setUser] = useState(() => localStorage.getItem('authTokens') ? jwt_decode(JSON.parse(localStorage.getItem('authTokens'))?.access) : null)
 
     const [loading, setLoading] = useState(() => true)
-    const history = useHistory()
+    const navigate = useNavigate()
 
     const {Login, RefreshToken, passwordReset, passwordResetConfirm} = AuthUserUrls
 
@@ -44,7 +44,7 @@ export const AuthProvider = React.memo(({children}) => {
             //set auth tokens in local storage
             localStorage.setItem('authTokens', JSON.stringify(data))
             localStorage.setItem('user', JSON.stringify(user))
-            history.push('/dashboard')
+            navigate('/dashboard')
             }
         else{
             return "Invalid login credentials"
@@ -56,7 +56,7 @@ export const AuthProvider = React.memo(({children}) => {
         setAuthTokens(null)
         localStorage.removeItem('user')
         setUser(null)
-        history.push('/login')
+        navigate('/login')
     },[setAuthTokens])
               
 

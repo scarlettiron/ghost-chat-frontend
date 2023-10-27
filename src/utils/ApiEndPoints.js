@@ -63,6 +63,10 @@ const InboxUrls = {
     }
 }
 
+const ChatUrls = {
+    protocol:'http',
+    socketUrl:{url:''},
+    serverUrl:{url:''},
+}
 
-
-export {server, tokenExp, AuthUserUrls, InboxUrls, UserUrls}
+export {server, tokenExp, AuthUserUrls, InboxUrls, UserUrls, ChatUrls}

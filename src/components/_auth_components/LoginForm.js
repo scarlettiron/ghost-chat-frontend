@@ -1,11 +1,10 @@
 import React, {memo, useContext, useState} from 'react'
-import { Link } from 'react-router-dom'
 import AuthContext from '../../context/AuthContext'
 import InputPrimary from '../../components/buttons-inputs/InputPrimary'
 import BtnPrimary from '../../components/buttons-inputs/BtnPrimary'
 import formInputChecker from '../../utils/FormInputChecker'
-import Error1 from '../loadings-errors-success/Error1'
-import Loading1 from '../loadings-errors-success/Loading1'
+import Error1 from '../loading-errors-success/Error1'
+import Loading1 from '../loading-errors-success/Loading1'
 import '../../css/forms.css'
 import '../../css/general.css'
 
@@ -17,16 +16,18 @@ const LoginForm = ({toggle}) => {
     const {loginUser} = useContext(AuthContext)
 
     const handleLogin = async (e) => {
+        e.preventDefault()
         const inputError = formInputChecker(e)
         if(inputError){
+            console.log(inputError)
             setError({type:inputError})
         }
         setLoading(()=>true)
         setError(() => false)
         let {username, password} = e.target.elements
-
-        username = username.strip()
-        password = password.strip()
+        console.log(username)
+        username = username.value.trim()
+        password = password.value.trim()
 
         const loginError = await loginUser(username, password)
         if(loginError){
@@ -50,7 +51,7 @@ const LoginForm = ({toggle}) => {
             error={error}/>
             <InputPrimary id='password' placeholder='Password'
             type='password' error={error}/>
-            <BtnPrimary text={'Login'} form='login-form'/>
+            <BtnPrimary type="submit" text={'Login'} form='login-form'/>
         </>
         }
         {loading &&

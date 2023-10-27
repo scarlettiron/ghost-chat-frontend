@@ -1,5 +1,5 @@
 import React from 'react'
-import '../../css/errors.css'
+import '../../css/errors-success.css'
 
 const Error1 = ({error=null}) => {
   return (
