@@ -1,9 +1,7 @@
 @import '../App.css';
 
 .dashboard-container{
-    display: flex;
-    justify-content: inline;
-    width:100%;
+    display: none;
 }
 
 .inbox-container-large-landing{
@@ -11,6 +9,12 @@
 }
 
 @media (min-width:500px){
+
+    .dashboard-container{
+        display: inline;
+        width:75%;
+    }
+
     .inbox-container-large-landing{
         display:flex;
         justify-content: center;

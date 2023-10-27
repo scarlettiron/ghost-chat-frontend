@@ -6,7 +6,7 @@ import SearchBox from '../search/SearchBox'
 //contains search users box
 const InboxcontainerLargeScreen = () => {
   return (
-    <div className='inbox-container-large-landing'>
+    <div className='inbox-container-large-landing temp'>
         <SearchBox/>
     </div>
   )

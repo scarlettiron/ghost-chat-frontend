@@ -2,6 +2,7 @@
 
 /*  For individual thread containers */
 .thread-item{
+    
     width:100%;
     min-height:50px;
     padding:5px;
@@ -17,14 +18,18 @@
 /* For container holding list of all threads */
 .thread-container-wrapper{
     width:100%;
+    /* display:none; */
+    height:100vh;
+/*     background-color: var(--background-secondary); */
+    overflow-y: scroll;
+}
+
+.thread-container-wrapper.active{
     display:block;
 }
 
-.thread-container.inactive{
-    display:none;
-}
-
 .thread-container{
+
     border:none;
     display: flex;
     flex-wrap: wrap;
@@ -32,7 +37,6 @@
     align-items: center;
     text-align: center;
     width:100%;
-    margin-top:8%;
 }
 
 
@@ -46,7 +50,6 @@
 
     .thread-container{
         width:400px;
-        /* border:solid 1px var(--theme-primary); */
         margin-left:25px;
     }
 }

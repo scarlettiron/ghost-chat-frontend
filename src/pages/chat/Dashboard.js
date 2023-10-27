@@ -6,8 +6,6 @@ import InboxContainerLargeScreen from '../../components/inbox/InboxcontainerLarg
 const Dashboard = () => {
   return (
     <div className='dashboard-container temp3'>
-      {/*container for all threads */}
-      <ThreadContainer/>
 
       {/*Only shows up when screen is 500px or larger */}
       <InboxContainerLargeScreen/>

@@ -8,7 +8,7 @@ import LoginSignup from './pages/_auth/LoginSignup';
 import PrivateThread from './pages/chat/PrivateThread';
 import Dashboard from './pages/chat/Dashboard'
 import Navbar from './components/nav/Navbar'
-
+import SideNav from './components/nav/SideNav';
 import './css/general.css'
 import './css/inbox.css'
 import './css/profile.css'
@@ -22,12 +22,13 @@ import './css/threads.css'
 function App() {
   return (
     <div className="App">
-      <Navbar/>
+    <Navbar/>
     <BrowserRouter>
-
+    <div className='app-container'>
       <AuthProvider>
       <InboxProvider>
       <PrivateSocketProvider>
+      <SideNav/>
       <Routes>
 x
           <Route exact path='/' element={<LoginSignup/>}></Route>
@@ -40,8 +41,10 @@ x
       </PrivateSocketProvider>
       </InboxProvider>
       </AuthProvider>
+      </div>
      </BrowserRouter>
     </div>
+
   );
 }
 
