@@ -4,7 +4,7 @@ import ThreadItem from './ThreadItem'
 
 const ThreadContainer = () => {
     const {Inbox} = useContext(InboxContext)
-
+    
     return (
     <div className='thread-container-wrapper'>
         <div className='thread-container'>

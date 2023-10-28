@@ -9,7 +9,7 @@ export default InboxContext;
 
 export const InboxProvider = ({children}) => {
     CountRenders('Inbox Context: ')
-    const {dashboard, createMessage} = InboxUrls
+    const {dashboard, createMessage, getMesssages} = InboxUrls
     const {User} = useContext(AuthContext)
     // list of threads messages are
     //organized by thread with messages included in 
@@ -69,7 +69,7 @@ export const InboxProvider = ({children}) => {
 
                                 }
 
-                                oldData[i].message_list.sort()
+                                //oldData[i].message_list.sort()
                                 break
                             }
                             
@@ -104,6 +104,54 @@ export const InboxProvider = ({children}) => {
                 setCurrentThread(messages[i])
                 return
             }
+        }
+    }
+
+    //mark messages as read for server
+    const handleMarkAsRead = async () => {
+        
+    }
+
+    //get messages for individual thread from server
+    const handleFetchThreadMessages = async (threadId) => {
+        try{
+            const {response, data} = await CustomFetch(`${getMesssages.url}/${threadId}`)
+            if(response.status === 200){
+                //add messages to state
+                const threadData = {...currentThread}
+                //iterate through messages and insert into correct slots
+                for(let i = 0; i < data.results.length; i++){
+                    let foundMessage = false
+                    for(let x = 0; x < threadData.message_list.length; x++){
+                        if(data.results[i].id === threadData.message_list[x]){
+                            foundMessage = true
+                            break
+                        }
+                    }
+                    if(!foundMessage){
+                        threadData.message_list.push(data.results[i])
+                    }
+                }
+
+                //add messages to current threads state
+                setCurrentThread(() => threadData)
+                //iterate through all threads and add new messages
+                const newInbox = {...messages}
+                for(let k = 0; k < newInbox.length; k++){
+                    if(newInbox[k].id === threadData.id){
+                        newInbox[k] = threadData
+                        setMessages(newInbox)
+                        break
+                    }
+                }
+                //Add updated info to local storage
+                localStorage.removeItem('ghost_inbox')
+                localStorage.setItem('ghost_inbox', newInbox)
+
+            }
+        }
+        catch(error){
+
         }
     }
 

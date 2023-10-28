@@ -20,3 +20,32 @@
         display:flex;
     }
 }
+
+.chat-header{
+    width:100%;
+    height:50px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    padding:5px;
+}
+
+.chat-profile-info{
+    width:50%;
+    min-height:50px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-wrap: nowrap;
+}
+
+.chat-profile-btns{
+    width:50%;
+    min-height:50px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+    flex-wrap: nowrap;
+}

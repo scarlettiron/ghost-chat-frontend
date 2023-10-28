@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom'
 import ThreadContainer from '../inbox/ThreadContainer'
 
 const SideNav = () => {
-    const {threadId} = useParams()
-    const [toggle, setToggle] = useState(() => threadId ? false : true)
+    const {threadID} = useParams()
+    const [toggle, setToggle] = useState(() => threadID? false : true)
 
   return (
     <div className='side-nav-wrapper temp'>

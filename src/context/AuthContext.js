@@ -65,7 +65,7 @@ export const AuthProvider = React.memo(({children}) => {
         const csrf = GetCookie('csrftoken')
         const refresh = AuthTokens?.refresh
         if(refresh){
-            const response = await fetch(RefreshToken, {
+            const response = await fetch(RefreshToken.url, {
                 method:"POST",
                 headers:{
                     'Content-Type':'application/json',
