@@ -60,6 +60,10 @@ const InboxUrls = {
     createThread:{
         url:`${server}chat/create-thread`,
         method:'POST',
+    }, 
+    markAsRead:{
+        url:`${server}chat/mark-read`,
+        method:'PUT',
     }
 }
 

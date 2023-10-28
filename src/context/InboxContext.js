@@ -9,7 +9,7 @@ export default InboxContext;
 
 export const InboxProvider = ({children}) => {
     CountRenders('Inbox Context: ')
-    const {dashboard, createMessage, getMesssages} = InboxUrls
+    const {dashboard, createMessage, getMesssages, markAsRead} = InboxUrls
     const {User} = useContext(AuthContext)
     // list of threads messages are
     //organized by thread with messages included in 
@@ -108,15 +108,20 @@ export const InboxProvider = ({children}) => {
     }
 
     //mark messages as read for server
-    const handleMarkAsRead = async () => {
-        
+    //takes in a list if message id's
+    const handleMarkAsRead = async (idList) => {
+        const fetchConfig = JSON.stringify({
+            method:markAsRead.method,
+            body:{id_list:idList}
+        })
+        const {response, data} = await CustomFetch(markAsRead.url, fetchConfig)
     }
 
     //get messages for individual thread from server
     const handleFetchThreadMessages = async (threadId) => {
         try{
             const {response, data} = await CustomFetch(`${getMesssages.url}/${threadId}`)
-            if(response.status === 200){
+            if(response.status === 200 && data.length > 0){
                 //add messages to state
                 const threadData = {...currentThread}
                 //iterate through messages and insert into correct slots
@@ -148,10 +153,17 @@ export const InboxProvider = ({children}) => {
                 localStorage.removeItem('ghost_inbox')
                 localStorage.setItem('ghost_inbox', newInbox)
 
+                //mark messages as read
+                const messageIdList = []
+                for(let v = 0; v < data.length; v++){
+                    messageIdList.push(data[v].id)
+                }
+                handleMarkAsRead(messageIdList)
             }
         }
         catch(error){
-
+            //handle errors
+            console.log(error)
         }
     }
 
