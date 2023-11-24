@@ -30,7 +30,6 @@ let CustomFetch = async (dataUrl, fetchConfig={}, contentTypeOverRide=false) => 
 
     if(expired){
         let {response, data} = await updateToken(AuthTokens)
-        console.log(data)
         if(response.status === 200){
             tokens = await data
         }
@@ -55,7 +54,6 @@ let CustomFetch = async (dataUrl, fetchConfig={}, contentTypeOverRide=false) => 
         fetchConfig['headers']['Content-Type'] =  'application/json'
     }
 
-    console.log(fetchConfig)
     //continue with request
     let response = await fetch(dataUrl, fetchConfig)
     console.log(response)
@@ -67,7 +65,7 @@ let CustomFetch = async (dataUrl, fetchConfig={}, contentTypeOverRide=false) => 
          data = await response.json()
     }
 
-
+    console.log(data)
     // return fetch response
     return {response, data}
 }

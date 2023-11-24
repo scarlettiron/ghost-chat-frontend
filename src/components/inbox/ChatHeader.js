@@ -1,16 +1,17 @@
 import React from 'react'
-import ProfileImageMedium from '../profile/ProfileImageMedium'
+import ProfileImageSmall from '../profile/ProfileImageSmall'
+import ChatBtns from './ChatBtns'
 
-const ChatHeader = ({thread, receiver}) => {
+const ChatHeader = ({receiver}) => {
   return (
     <div className='chat-header'>
         {receiver &&
         <div className='chat-profile-info'>
-            <ProfileImageMedium user={receiver}/>
+            <ProfileImageSmall user={receiver}/>
             <h3 className='text-primary profile-name'>{receiver.username}</h3>
         </div>
         }
-
+        <ChatBtns/>
     </div>
   )
 }

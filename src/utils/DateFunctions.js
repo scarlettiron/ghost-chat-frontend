@@ -1,4 +1,4 @@
-import {addMinutes} from 'date-fns'
+import {addMinutes, parseISO} from 'date-fns'
 import moment, {isBetween, isAfter, isBefore} from 'moment'
 
 
@@ -59,6 +59,17 @@ import moment, {isBetween, isAfter, isBefore} from 'moment'
         return started
     }
 
+    //returns true if first date is before second date
+    const dateIsBefore = (firstDate, secondDate) => {
+        const first = new Date(parseISO(firstDate))
+        const second = new Date(parseISO(secondDate))
+        if(moment(first).isBefore(second)){
+            return true
+        }
+        return false
+
+    }
+
     export {convertLocalToDbTime, addAndConvertToDbTime, convertHoursToUtc, 
         convertToFormattedSiteDate, videoIsActive, convertToFormattedSiteTime, 
-        checkIsFuture, convertToFormattedSiteDateShort}
+        checkIsFuture, convertToFormattedSiteDateShort, dateIsBefore}

@@ -22,7 +22,7 @@
     flex-wrap: wrap;
 }
 
-@media min-width(650px){
+@media (min-width:650px){
   .lds-container{
     max-width:600px;
   }
@@ -53,7 +53,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--theme-secondary);
+    background: whitesmoke;
     margin: -4px 0 0 -4px;
   }
   .lds-roller div:nth-child(1) {

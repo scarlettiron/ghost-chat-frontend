@@ -1,6 +1,7 @@
-import React, {createContext, useState, useEffect, useContext} from "react";
+import React, {createContext, useRef, useCallback, useState, useEffect, useContext} from "react";
 import AuthContext from './AuthContext'
 import CustomFetch from '../utils/CustomFetch'
+import {dateIsBefore} from '../utils/DateFunctions'
 import {InboxUrls} from '../utils/ApiEndPoints'
 import {CountRenders} from '../utils/CountRenders'
 const InboxContext = createContext()
@@ -18,11 +19,14 @@ export const InboxProvider = ({children}) => {
     //    'pk':thread pk,
     //     'massage_list':[{message data},]
     // ]}
-    const [messages, setMessages] = useState(() => localStorage.getItem('_GhostThreads_') ? JSON.parse(localStorage.getItem('_GhostThreads_')) : false)
+    const [inbox, setInbox] = useState(() => localStorage.getItem('_GhostThreads_') ? JSON.parse(localStorage.getItem('_GhostThreads_')) : false)
 
     const [error, setError] = useState(() => false)
     const [loading, setLoading] = useState(() => true)
-    
+  
+    //prevents duplicate dashboard loads 
+    const dashLoadCalls = useRef(0)
+
     // Initial dash board load for first 10 threads 
     // and 5 messages per thread
     // GhostChat only stores messages in the database which
@@ -34,19 +38,26 @@ export const InboxProvider = ({children}) => {
     //sort them into the correct spots in state before placing
     //them in local storage
     const handleDashboardLoad = async () => {
+        if(dashLoadCalls.current > 0) return
+        dashLoadCalls.current = dashLoadCalls.current + 1
+        
         try{
             const {response, data} = await CustomFetch(dashboard.url)
-            console.log(response)
-            console.log(data)
             if(response.status === 200){
-                if(!messages){
-                    setMessages(data)
+                if(!inbox){
+                    //sort messages in threads
+                    for(let i = 0; i < data.length; i++){
+                        const sortedMessages = handleSortMessages(data[i].message_list)
+                        data[i].message_list = sortedMessages
+                    }
+                    
+                    setInbox(data)
                     localStorage.setItem('ghost_inbox', JSON.stringify(data))
                     setLoading(() => false)
                     return 
                 }
-                //If there are message already in state
-                setMessages((oldData) => {
+                //If there are messages already in state
+                setInbox((oldData) => {
                     //iterate through threads in data first
                     for(let j = 0; j < data.length; j++){
                         //iterate through current state threads data
@@ -69,7 +80,7 @@ export const InboxProvider = ({children}) => {
 
                                 }
 
-                                //oldData[i].message_list.sort()
+                                oldData[i].message_list = handleSortMessages(oldData[i].message_list)
                                 break
                             }
                             
@@ -84,6 +95,7 @@ export const InboxProvider = ({children}) => {
                     localStorage.setItem('ghost_inbox', oldData)
                     return oldData
                 })
+            setLoading(() => false)
             }
         }
 
@@ -98,29 +110,31 @@ export const InboxProvider = ({children}) => {
     //For users currently active thread
     const [currentThread, setCurrentThread] = useState(() => null)
 
-    const handleSetCurrentThread = (threadId) => {
-        for(let i = 0; i < messages.length; i++){
-            if(messages[i].id === threadId){
-                setCurrentThread(messages[i])
+    const handleSetCurrentThread = useCallback((threadId) => {
+        for(let i = 0; i < inbox.length; i++){
+            if(inbox[i].id === threadId){
+                //sort the threads messages into correct order
+
+                setCurrentThread(inbox[i])
                 return
             }
         }
-    }
+    }, [inbox])
 
     //mark messages as read for server
     //takes in a list if message id's
-    const handleMarkAsRead = async (idList) => {
+    const handleMarkAsRead = useCallback(async (idList) => {
         const fetchConfig = JSON.stringify({
             method:markAsRead.method,
             body:{id_list:idList}
         })
-        const {response, data} = await CustomFetch(markAsRead.url, fetchConfig)
-    }
+        await CustomFetch(markAsRead.url, fetchConfig)
+    }, [])
 
     //get messages for individual thread from server
     const handleFetchThreadMessages = async (threadId) => {
         try{
-            const {response, data} = await CustomFetch(`${getMesssages.url}/${threadId}`)
+            const {response, data} = await CustomFetch(`${getMesssages.url}${threadId}`)
             if(response.status === 200 && data.length > 0){
                 //add messages to state
                 const threadData = {...currentThread}
@@ -137,15 +151,16 @@ export const InboxProvider = ({children}) => {
                         threadData.message_list.push(data.results[i])
                     }
                 }
-
+                //add pagination endpoint
+                threadData.next = data.next
                 //add messages to current threads state
                 setCurrentThread(() => threadData)
                 //iterate through all threads and add new messages
-                const newInbox = {...messages}
+                const newInbox = {...inbox}
                 for(let k = 0; k < newInbox.length; k++){
                     if(newInbox[k].id === threadData.id){
                         newInbox[k] = threadData
-                        setMessages(newInbox)
+                        setInbox(newInbox)
                         break
                     }
                 }
@@ -156,7 +171,9 @@ export const InboxProvider = ({children}) => {
                 //mark messages as read
                 const messageIdList = []
                 for(let v = 0; v < data.length; v++){
-                    messageIdList.push(data[v].id)
+                    if(data[v].sender.id !== User.id){
+                        messageIdList.push(data[v].id)
+                    }
                 }
                 handleMarkAsRead(messageIdList)
             }
@@ -167,6 +184,21 @@ export const InboxProvider = ({children}) => {
         }
     }
 
+    //handle sorting list of messages so that they are reversed
+    //with the most current message being at the last index
+    //and the oldest message being at the first index
+    const handleSortMessages  = (messageList) => {
+        const newMessageList = messageList.sort((first, second) => {
+            let checkDate = dateIsBefore(first.date, second.date)
+            if(checkDate){
+                return -1
+            }
+            return 1
+        })
+
+        return newMessageList
+    }
+
     //  Add message to LOCAL storage only
     const handleAddMessage = (message) => {
         setCurrentThread((oldData) => ({
@@ -174,42 +206,35 @@ export const InboxProvider = ({children}) => {
             ...oldData
         }))
 
-        const threadData = {...messages}
+        const threadData = {...inbox}
         for(let x = 0; x < threadData.length; x++){
             if(threadData[x].id === currentThread.id){
                 threadData[x].message_list.push(message)
                 break
             }
         }
-        setMessages(threadData)
+        setInbox(threadData)
         localStorage.removeItem('ghost_inbox')
         localStorage.setItem('ghost_inbox', threadData)
 
     }
 
-    // Add unread message to db
-    const handleSaveMessageToDb = async (message) => {
-        const fetchConfig = {body:JSON.stringify(message), method:createMessage.method}
-        const {response, data} = await CustomFetch(createMessage.url, fetchConfig)
-        if(response.status === 200){
-            console.log('success')
-        }
-    }
-
 
     useEffect(() => {
-        if(!User) return
+        if(!User || !loading || dashLoadCalls.current >= 1) return
         handleDashboardLoad()
-    }, [])
+    }, [loading, User])
 
     const contextData = {
-        Inbox:messages,
+        Inbox:inbox,
         dashboardError:error,
         dashboardLoading:loading,
         handleAddMessage:handleAddMessage,
         handleSetCurrentThread:handleSetCurrentThread,
         currentThread:currentThread,
-        handleSaveMessageToDb:handleSaveMessageToDb,
+        handleFetchThreadMessages:handleFetchThreadMessages,
+        handleSortMessages:handleSortMessages,
+
     }
 
     return (

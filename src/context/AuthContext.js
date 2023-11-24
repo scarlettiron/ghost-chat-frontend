@@ -56,6 +56,7 @@ export const AuthProvider = React.memo(({children}) => {
         setAuthTokens(null)
         localStorage.removeItem('user')
         setUser(null)
+        localStorage.removeItem('ghost_inbox')
         navigate('/login')
     },[setAuthTokens])
               
@@ -63,6 +64,8 @@ export const AuthProvider = React.memo(({children}) => {
     
     const updateToken = useCallback(async () => {
         const csrf = GetCookie('csrftoken')
+        if(!AuthTokens) return 
+        
         const refresh = AuthTokens?.refresh
         if(refresh){
             const response = await fetch(RefreshToken.url, {
