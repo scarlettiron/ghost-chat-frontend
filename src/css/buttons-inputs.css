@@ -24,13 +24,14 @@
 }
 
 .new-message-input-wrapper{
-    width:100%;
+    width:99%;
     display:flex;
     justify-content: space-around;
     align-items: center;
     text-align: center;
     flex-wrap: nowrap;
-    border:solid 2px white;
+    border-radius: 15px;
+    background-color: var(--background-secondary);
 }
 
 .message-input{
@@ -43,6 +44,7 @@
     border: none;
     outline:none;
 }
+
 .message-input:focus{
     border:none;
     outline: none;

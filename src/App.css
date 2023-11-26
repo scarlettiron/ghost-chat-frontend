@@ -1,7 +1,8 @@
 :root{
  /* --background:rgb(52, 52, 52); */
  --background:rgb(39, 39, 39);
- --background-secondary:rgb(52, 52, 52);
+ --background-secondary:rgb(45, 45, 45);
+/*  --background-secondary:rgb(52, 52, 52); */
  --theme-primary:rgb(140, 140, 144); /* #8c8c90*/
  --theme-secondary:rgb(236, 236, 236);
  --alert:rgb(146, 7, 7);

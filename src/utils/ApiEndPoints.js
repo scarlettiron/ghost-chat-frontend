@@ -69,8 +69,8 @@ const InboxUrls = {
 
 const ChatUrls = {
     protocol:'http',
-    socketUrl:{url:''},
-    serverUrl:{url:''},
+    socketUrl:{url:'ws/private_chat/'},
+    serverUrl:{url:'127.0.0.1:8000'},
 }
 
 export {server, tokenExp, AuthUserUrls, InboxUrls, UserUrls, ChatUrls}

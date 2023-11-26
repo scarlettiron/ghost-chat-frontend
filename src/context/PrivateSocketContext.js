@@ -1,11 +1,29 @@
 import React, {createContext, useContext, useEffect, useRef, useState} from 'react'
 import AuthContext from './AuthContext' 
 import InboxContext from './InboxContext'
-import CustomFetch from '../utils/CustomFetch'
 import {w3cwebsocket as w3cSocket} from 'websocket'
 import {ChatUrls} from '../utils/ApiEndPoints'
 import Peer from 'simple-peer'
 
+//Socket messages must be formatted in this manner
+class SocketMessage {
+    constructor(sender, thread, type='chat_message', body=false, candidateSignal=false){
+        this.type = type;
+        this.sender = sender;
+        this.thread = thread;
+        this.body = body;
+        this.candidateSignal = candidateSignal
+    }
+    toJSON(){
+        return {
+            type:this.type,
+            sender:this.sender,
+            thread:this.thread,
+            body:this.body,
+            candidateSignal:this.candidateSignal,
+        }
+    }
+}
 
 const PrivateSocketContext = createContext()
 
@@ -14,7 +32,7 @@ export default PrivateSocketContext;
 const {socketUrl, serverUrl} = ChatUrls
 
 export const PrivateSocketProvider = ({children}) => {
-    const {UserProfile} = useContext(AuthContext)
+    const {User} = useContext(AuthContext)
     const [contextThread, setContextThread] = useState(null)
 
     const handleSetContextThread = (threadId) => {
@@ -47,25 +65,30 @@ export const PrivateSocketProvider = ({children}) => {
     const socket = useRef()
     const socketConnected = useRef(false)
 
+    /// current message being sent over socket
+    // when sending a message this is populated by socketmessage
+    //object. If an error occurs while sending message or
+    // message is successfully sent, this is set to false.
+    const [sending, setSending] = useState(false)
     ///for messages state ///
-    const {Inbox, currentThread, handleAddMessage, handleSaveMessageToDb} = useContext(InboxContext)
+    const {Inbox, currentThread, handleAddMessage} = useContext(InboxContext)
 
     //socket functions//
     const sendSocketMessage = (data) => {
-        const socketPayload = JSON.stringify({'type':'chat_message',
-        body:data.body, sender:data.sender, 
-        thread:contextThread, candidateSignal:null})
-        socket.current.send(socketPayload)
+        const socketPayload = new SocketMessage(User.user_id, contextThread)
+        socketPayload.type = 'chat_message'
+        socketPayload.body = data.body.trim()
+        setSending(socketPayload)
+        const payload = JSON.stringify(socketPayload)
+        socket.current.send(payload) 
     }
 
     const handleSocketActions = (data) => {
         if(data.type === 'chat_message'){
-            if(data.sender !== UserProfile.id){
             handleAddMessage(data)
-            }
         }
         if(data.type === 'call_request'){
-            if(data.sender !== UserProfile.id){
+            if(data.sender !== User.user_id){
             setCalling(true)
             call.current = {status:true, caller:data.sender, candidateSignal:data.candidateSignal}
             }
@@ -74,7 +97,7 @@ export const PrivateSocketProvider = ({children}) => {
             handleCallAccepted(data)
         }
         if(data.type === 'decline_call_request'){
-            if(data.sender !== UserProfile.id){
+            if(data.sender !== User.user_id){
             handleAddMessage({
                 sender:data.sender,
                 thread:data.thread,
@@ -92,7 +115,7 @@ export const PrivateSocketProvider = ({children}) => {
                 body:null,
                 is_call:true
             })
-            if(data.sender !== UserProfile.id){
+            if(data.sender !== User.user_id){
                 handleCleanup()
             }
         }
@@ -122,7 +145,7 @@ export const PrivateSocketProvider = ({children}) => {
     
     //initiate call to remote user
     const handleMakeCall = async () =>{
-        call.current = {status:true, caller:UserProfile.id}
+        call.current = {status:true, caller:User.user_id}
         setCalling(true)
 
         await setupLocalStream()
@@ -132,7 +155,7 @@ export const PrivateSocketProvider = ({children}) => {
         newPeer.on('signal', (data) => { 
             const socketPayload = JSON.stringify({
                 type:'call_request',
-                sender:UserProfile.id,
+                sender:User.user_id,
                 'candidateSignal':data,
                 thread:contextThread,
                 body:' '
@@ -160,7 +183,7 @@ export const PrivateSocketProvider = ({children}) => {
 
     //handle if call is accepted by call receiver
     const handleCallAccepted = (data) => {
-        if(data.sender !== UserProfile.id){
+        if(data.sender !== User.user_id){
             peerSignal.current.signal(data.candidateSignal)
             setCallAccepted(true)
         }
@@ -178,7 +201,7 @@ export const PrivateSocketProvider = ({children}) => {
         newPeer.on('signal', (data) =>{
             const socketPayload = JSON.stringify({
                 type:'accept_call_request',
-                sender:UserProfile.id,
+                sender:User.user_id,
                 candidateSignal:data,
                 thread:contextThread,
                 body:' '
@@ -210,7 +233,7 @@ export const PrivateSocketProvider = ({children}) => {
         handleCleanup()
         const socketPayload = JSON.stringify({
             type:'call_ended',
-            sender:UserProfile.id,
+            sender:User.user_id,
             candidateSignal:null,
             thread:contextThread,
             body:' '
@@ -222,7 +245,7 @@ export const PrivateSocketProvider = ({children}) => {
         handleCleanup()
         const socketPayload = JSON.stringify({
             type:'decline_call_request',
-            sender:UserProfile.id,
+            sender:User.user_id,
             candidateSignal:null,
             thread:contextThread,
             body:' '
@@ -241,6 +264,7 @@ export const PrivateSocketProvider = ({children}) => {
         peersConnected:peersConnected,
         socket:socket,
         socketConnected:socketConnected,
+        sendingMessage:sending,
         sendSocketMessage:sendSocketMessage,
         setupLocalStream:setupLocalStream,
         remoteVideo:remoteVideo,
@@ -262,13 +286,13 @@ export const PrivateSocketProvider = ({children}) => {
     //reconnect another socket
     useEffect(()=>{
         // to avoid multiple sockets from being opened
-        if(!UserProfile | !contextThread){return}
+        if(!User | !contextThread){return}
 
         /* if(socketConnected.current === true) return
  */
-        const PrivateChatCallSocket = socketUrl.url
         const socketProtocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://'
-        const socketConnectUrl = `${socketProtocol}${serverUrl}/${PrivateChatCallSocket.url}${contextThread}/`
+        const socketConnectUrl = `${socketProtocol}${serverUrl.url}/${socketUrl.url}${contextThread}/`
+        //const socketConnectUrl = 'ws://127.0.0.1:8000/ws/main'
         const newSocket = new w3cSocket(socketConnectUrl)
 
         newSocket.onerror = (error) => {
@@ -297,7 +321,7 @@ export const PrivateSocketProvider = ({children}) => {
         return () => socket.current.close()
 
         
-    },[contextThread, socketConnected, UserProfile, setContextThread])
+    },[contextThread, socketConnected, User, setContextThread])
 
 
   return (
