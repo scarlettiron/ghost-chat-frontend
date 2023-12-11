@@ -8,11 +8,11 @@ import Message from './Message'
 const ChatContainer = () => {
     const {User} = useContext(AuthContext)
     const {currentThread, getNextPageOfMessages} = useContext(InboxContext)
-    const {call, calling} = useContext(PrivateSocketContext)
+    //const {call, calling} = useContext(PrivateSocketContext)
     const displaySendingPopup = useRef(null)
     const initialMount = useRef(true)
     const scrollDiv = createRef()
-
+ 
     const [loading, setLoading] = useState(() => true)
   
     const scrollToBottom = () => {
@@ -40,7 +40,7 @@ const ChatContainer = () => {
       if(element) {observer.current.observe(element)}
     }
   
-  
+    
   
     useEffect(()=>{
       if(loading && !currentThread) return
@@ -51,12 +51,12 @@ const ChatContainer = () => {
     }, [currentThread, loading])
   
   
-    useEffect(() => {
-      if(call.current.caller !== User.user_id){
-        scrollToBottom()
-      }
+   // useEffect(() => {
+    //  if(call.current.caller !== User.user_id){
+      //  scrollToBottom()
+      //}
 
-    }, [calling])
+    //}, [calling])
 
   return (
     <div className='chat-container' ref={scrollDiv}>
@@ -65,11 +65,11 @@ const ChatContainer = () => {
                 if(index === currentThread.message_list.length - 1){
                   return <div ref={handleTrackPosition} key={index}>
                     <Message message={message} sender={message.sender} 
-                    key={`message-${message.id}-{index}`} user={User} />
+                    key={`message-${message.id}-${index}`} user={User} />
                   </div>
                 }
                 return <Message message={message} sender={message.sender} 
-                key={`message-${message.id}-{index}`} user={User}/>
+                key={`message-${message.id}-${index}`} user={User}/>
             })
         }
     </div>

@@ -1,30 +1,32 @@
-import React, {useState, memo, useContext, useRef, useEffect} from 'react'
+import React, {useState, memo, useContext, useRef} from 'react'
+import {effect} from "@preact/signals-react"
 import PrivateSocketContext from '../../context/PrivateSocketContext';
 import TextareaAutosize from 'react-textarea-autosize';
 import {ReactComponent as SendArrow} from '../../assets/send-arrow.svg'
+import LoadingSmall from '../loading-errors-success/LoadingSmall'
 const MessageInput = () => {
+
   const {sendSocketMessage, sendingMessage} = useContext(PrivateSocketContext)
   const tag = useRef()
-  
+
   const [body, setBody] = useState(() => sendingMessage?.sent === true && null)
-  const [disabled, setDisabled] = useState(() => sendingMessage ? true : false)
+  const [disabled, setDisabled] = useState(() => !sendingMessage | sendingMessage?.sent ? false : true)
 
   const handeleSetBody = (e) => {
-    setBody(e.target.value)
+    setBody(() => e.target.value)
   }
 
   const handleSendMessage = () => {
-    console.log("sending message")
+    if(!body.trim()){return}
     sendSocketMessage({'body':body})
     setDisabled(() => true)
   }
 
   //handle clearing input when message is successfully sent
-  useEffect(() => {
-    if(sendingMessage?.sent === true) 
+  effect(() => {
+    if(sendingMessage.sent === true) 
     {tag.current.value = null}
-
-  }, [sendingMessage])
+  })
 
   return (
 
@@ -41,8 +43,8 @@ const MessageInput = () => {
             onChange={(e) => handeleSetBody(e)}
             disabled = {disabled}
         />
-        {sendingMessage ?
-          <h5>Sing</h5>
+        {sendingMessage && !sendingMessage.sent ?
+          <LoadingSmall/>
           :
         <SendArrow onClick = {() => handleSendMessage()} className= "send-icon-svg" viewBox="0 0 512.035 512.035"/>
         } 

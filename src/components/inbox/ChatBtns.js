@@ -1,8 +1,14 @@
-import React from 'react'
-
+import React, {useContext} from 'react'
+import PrivateSocketContext from '../../context/PrivateSocketContext'
+import {ReactComponent as Phone} from '../../assets/phone.svg'
 const ChatBtns = () => {
+  const {handleMakeCall} = useContext(PrivateSocketContext)
   return (
-    <div>ChatBtns</div>
+    <Phone 
+    viewBox="0 0 24 24" 
+    className='call-icon-svg'
+    onClick={() => handleMakeCall()}
+    />
   )
 }
 

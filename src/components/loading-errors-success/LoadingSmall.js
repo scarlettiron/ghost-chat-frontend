@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Loading2 = () => {
+const LoadingSmall = () => {
   return (
     <div>Loading2</div>
   )
 }
 
-export default Loading2
+export default LoadingSmall
