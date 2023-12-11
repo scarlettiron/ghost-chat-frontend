@@ -1,4 +1,5 @@
 import React, {createContext, useRef, useCallback, useState, useEffect, useContext} from "react";
+import {signal} from "@preact/signals-react"
 import AuthContext from './AuthContext'
 import CustomFetch from '../utils/CustomFetch'
 import {dateIsBefore} from '../utils/DateFunctions'
@@ -8,10 +9,7 @@ const InboxContext = createContext()
 
 export default InboxContext;
 
-export const InboxProvider = ({children}) => {
-    CountRenders('Inbox Context: ')
-    const {dashboard, createMessage, getMesssages, markAsRead} = InboxUrls
-    const {User} = useContext(AuthContext)
+
     // list of threads messages are
     //organized by thread with messages included in 
     //'message_list'
@@ -19,7 +17,16 @@ export const InboxProvider = ({children}) => {
     //    'pk':thread pk,
     //     'massage_list':[{message data},]
     // ]}
-    const [inbox, setInbox] = useState(() => localStorage.getItem('_GhostThreads_') ? JSON.parse(localStorage.getItem('_GhostThreads_')) : false)
+    const inbox = signal(localStorage.getItem('ghost_inbox') ? JSON.parse(localStorage.getItem('ghost_inbox')) : false)
+
+
+    //For users currently active thread
+    const currentThread = signal(false)
+
+export const InboxProvider = ({children}) => {
+    CountRenders('Inbox Context: ')
+    const {dashboard, createMessage, getMesssages, markAsRead} = InboxUrls
+    const {User} = useContext(AuthContext)
 
     const [error, setError] = useState(() => false)
     const [loading, setLoading] = useState(() => true)
@@ -44,20 +51,21 @@ export const InboxProvider = ({children}) => {
         try{
             const {response, data} = await CustomFetch(dashboard.url)
             if(response.status === 200){
-                if(!inbox){
+                if(!inbox.value){
                     //sort messages in threads
                     for(let i = 0; i < data.length; i++){
                         const sortedMessages = handleSortMessages(data[i].message_list)
                         data[i].message_list = sortedMessages
                     }
                     
-                    setInbox(data)
+                    inbox.value = data
                     localStorage.setItem('ghost_inbox', JSON.stringify(data))
                     setLoading(() => false)
                     return 
                 }
                 //If there are messages already in state
-                setInbox((oldData) => {
+                const oldData = inbox.value
+                console.log(oldData)
                     //iterate through threads in data first
                     for(let j = 0; j < data.length; j++){
                         //iterate through current state threads data
@@ -74,7 +82,7 @@ export const InboxProvider = ({children}) => {
                                 // iterate through messages just fetched
                                 for(let z = 0; z < data[j].message_list.length; z++){
                                     // add if message is not in state list
-                                    if(!messageIds.includes(data[j].message_list[z])){
+                                    if(!messageIds.includes(data[j].message_list[z].id)){
                                         oldData[i].message_list.push(data[j].message_list[z])
                                     }
 
@@ -92,9 +100,9 @@ export const InboxProvider = ({children}) => {
                         }
                     }
                     localStorage.removeItem('ghost_inbox')
-                    localStorage.setItem('ghost_inbox', oldData)
-                    return oldData
-                })
+                    localStorage.setItem('ghost_inbox', JSON.stringify(oldData))
+                inbox.value = oldData  
+                
             setLoading(() => false)
             }
         }
@@ -108,18 +116,16 @@ export const InboxProvider = ({children}) => {
     }
 
     //For users currently active thread
-    const [currentThread, setCurrentThread] = useState(() => null)
 
-    const handleSetCurrentThread = useCallback((threadId) => {
-        for(let i = 0; i < inbox.length; i++){
-            if(inbox[i].id === threadId){
+    const handleSetCurrentThread = (threadId) => {
+        for(let i = 0; i < inbox.value.length; i++){
+            if(inbox.value[i].id === threadId){
                 //sort the threads messages into correct order
-
-                setCurrentThread(inbox[i])
+                currentThread.value = {...inbox.value[i]}
                 return
             }
         }
-    }, [inbox])
+    }
 
     //mark messages as read for server
     //takes in a list if message id's
@@ -137,7 +143,7 @@ export const InboxProvider = ({children}) => {
             const {response, data} = await CustomFetch(`${getMesssages.url}${threadId}`)
             if(response.status === 200 && data.length > 0){
                 //add messages to state
-                const threadData = {...currentThread}
+                const threadData = {...currentThread.value}
                 //iterate through messages and insert into correct slots
                 for(let i = 0; i < data.results.length; i++){
                     let foundMessage = false
@@ -151,16 +157,17 @@ export const InboxProvider = ({children}) => {
                         threadData.message_list.push(data.results[i])
                     }
                 }
+
                 //add pagination endpoint
                 threadData.next = data.next
                 //add messages to current threads state
-                setCurrentThread(() => threadData)
+                currentThread.value =  threadData
                 //iterate through all threads and add new messages
-                const newInbox = {...inbox}
+                const newInbox = {...inbox.value}
                 for(let k = 0; k < newInbox.length; k++){
                     if(newInbox[k].id === threadData.id){
                         newInbox[k] = threadData
-                        setInbox(newInbox)
+                        inbox.value = newInbox
                         break
                     }
                 }
@@ -201,22 +208,17 @@ export const InboxProvider = ({children}) => {
 
     //  Add message to LOCAL storage only
     const handleAddMessage = (message) => {
-        setCurrentThread((oldData) => ({
-            message_list:[message, ...oldData.message_list],
-            ...oldData
-        }))
+        message.date = new Date().toISOString()
 
-        const threadData = {...inbox}
-        for(let x = 0; x < threadData.length; x++){
-            if(threadData[x].id === currentThread.id){
-                threadData[x].message_list.push(message)
+        for(let x = 0; x < inbox.value.length; x++){
+            if(inbox.value[x].id === currentThread.value.id){
+                inbox.value[x].message_list.push(message)
+                inbox.value = [...inbox.value]
                 break
             }
         }
-        setInbox(threadData)
         localStorage.removeItem('ghost_inbox')
-        localStorage.setItem('ghost_inbox', threadData)
-
+        localStorage.setItem('ghost_inbox', JSON.stringify(inbox.value))
     }
 
 
@@ -226,12 +228,12 @@ export const InboxProvider = ({children}) => {
     }, [loading, User])
 
     const contextData = {
-        Inbox:inbox,
+        Inbox:inbox.value,
         dashboardError:error,
         dashboardLoading:loading,
         handleAddMessage:handleAddMessage,
         handleSetCurrentThread:handleSetCurrentThread,
-        currentThread:currentThread,
+        currentThread:currentThread.value,
         handleFetchThreadMessages:handleFetchThreadMessages,
         handleSortMessages:handleSortMessages,
 
